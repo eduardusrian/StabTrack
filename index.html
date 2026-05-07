@@ -31,6 +31,7 @@
             padding: 32px 0;
             position: fixed;
             height: 100vh;
+            overflow-y: auto;
         }
 
         .logo {
@@ -99,6 +100,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
         .card-header h2 {
@@ -264,6 +267,30 @@
             cursor: pointer;
         }
 
+        /* Radio Group */
+        .radio-group {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .radio-item input {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .radio-item label {
+            margin: 0;
+            cursor: pointer;
+        }
+
         /* Buttons */
         .btn {
             padding: 10px 20px;
@@ -360,6 +387,10 @@
         .badge-acc { background: #fff3e0; color: #e67700; }
         .badge-int { background: #e3fafc; color: #0b7285; }
         .badge-rt { background: #e9ecef; color: #495057; }
+        .badge-rt-30 { background: #ffe0e0; color: #c92a2a; }
+        .badge-rt-25 { background: #e0f2ff; color: #1864ab; }
+        .badge-st { background: #f3d9fa; color: #9c27b0; }
+        .badge-category { background: #e6f7e6; color: #2b8a3e; }
 
         /* Timepoint Settings */
         .study-type-section {
@@ -399,46 +430,56 @@
             width: 120px;
         }
 
-        /* Month View */
-        .month-header {
+        /* Month View - LIST STYLE */
+        .schedule-list {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 24px;
-        }
-
-        .month-nav {
-            display: flex;
+            flex-direction: column;
             gap: 12px;
         }
 
-        .month-year {
-            font-size: 18px;
-            font-weight: 600;
-        }
-
-        .schedule-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 16px;
-        }
-
-        .schedule-card {
+        .schedule-list-item {
             background: #f8f9fa;
-            border-radius: 16px;
-            padding: 20px;
+            border-radius: 12px;
+            padding: 16px 20px;
             border-left: 4px solid #667eea;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
         }
 
-        .schedule-card h4 {
-            font-size: 16px;
-            margin-bottom: 8px;
+        .schedule-list-item:hover {
+            background: #e9ecef;
         }
 
-        .schedule-card p {
+        .schedule-info {
+            flex: 2;
+        }
+
+        .schedule-info h4 {
+            font-size: 15px;
+            margin-bottom: 6px;
+        }
+
+        .schedule-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
             font-size: 13px;
-            color: #868e96;
-            margin-bottom: 4px;
+            color: #666;
+        }
+
+        .schedule-details span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .schedule-status {
+            display: flex;
+            gap: 12px;
+            align-items: center;
         }
 
         /* Empty State */
@@ -473,11 +514,6 @@
             padding: 12px;
             background: #fff3bf;
             border-radius: 12px;
-        }
-
-        /* Study Type Row in Add Sample */
-        .study-type-row {
-            margin-bottom: 8px;
         }
     </style>
 </head>
@@ -583,14 +619,68 @@
                                     </div>
                                     <div id="timepoints-RT" class="study-timepoints-section" style="display: none;">
                                         <div class="study-timepoints-header">
-                                            <h4>Timepoints</h4>
+                                            <h4>Temperature & Timepoints</h4>
                                             <div class="timepoint-actions">
                                                 <button type="button" onclick="selectAllTimepoints('RT')">Select all</button>
                                                 <button type="button" onclick="clearAllTimepoints('RT')">Clear</button>
                                             </div>
                                         </div>
+                                        <div class="form-group" style="margin-bottom: 16px;">
+                                            <label style="font-size: 13px;">Temperature</label>
+                                            <div class="radio-group">
+                                                <div class="radio-item">
+                                                    <input type="radio" name="rt-temperature" value="30°C" id="rt-temp-30" checked>
+                                                    <label for="rt-temp-30">30°C</label>
+                                                </div>
+                                                <div class="radio-item">
+                                                    <input type="radio" name="rt-temperature" value="25°C" id="rt-temp-25">
+                                                    <label for="rt-temp-25">25°C</label>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div id="timepoints-checkbox-RT" class="timepoints-checkbox-group"></div>
                                     </div>
+                                </div>
+                                <div class="study-type-row">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" value="ST" id="study-st" onchange="toggleStudyTimepoints('ST')">
+                                        <label for="study-st">ST <span class="checkbox-sub">(Stressed Test)</span></label>
+                                    </div>
+                                    <div id="timepoints-ST" class="study-timepoints-section" style="display: none;">
+                                        <div class="study-timepoints-header">
+                                            <h4>Timepoints</h4>
+                                            <div class="timepoint-actions">
+                                                <button type="button" onclick="selectAllTimepoints('ST')">Select all</button>
+                                                <button type="button" onclick="clearAllTimepoints('ST')">Clear</button>
+                                            </div>
+                                        </div>
+                                        <div id="timepoints-checkbox-ST" class="timepoints-checkbox-group"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Sample Category</label>
+                            <div class="radio-group" id="sample-category">
+                                <div class="radio-item">
+                                    <input type="radio" name="category" value="Validasi" id="cat-validasi">
+                                    <label for="cat-validasi">Validasi</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="category" value="Trial" id="cat-trial">
+                                    <label for="cat-trial">Trial</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="category" value="Pilot" id="cat-pilot">
+                                    <label for="cat-pilot">Pilot</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="category" value="Deviasi" id="cat-deviasi">
+                                    <label for="cat-deviasi">Deviasi</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="category" value="Others" id="cat-others" checked>
+                                    <label for="cat-others">Others</label>
                                 </div>
                             </div>
                         </div>
@@ -616,7 +706,7 @@
                     <div class="table-wrapper">
                         <table>
                             <thead>
-                                <tr><th>Sample Name</th><th>Batch Number</th><th>Received Date</th><th>Study Types</th><th>Actions</th></tr>
+                                <tr><th>Sample Name</th><th>Batch</th><th>Received</th><th>Category</th><th>Study Types</th><th>Actions</th></tr>
                             </thead>
                             <tbody id="samples-table"></tbody>
                         </table>
@@ -627,8 +717,10 @@
             <!-- Monthly View Page -->
             <div id="monthly-view-page" style="display: none;">
                 <div class="card">
-                    <div class="month-header">
+                    <div class="card-header">
                         <h2>📅 Browse Analysis Schedules by Month</h2>
+                    </div>
+                    <div class="month-header">
                         <div class="month-nav">
                             <button class="btn btn-secondary" onclick="changeMonth(-1)">← Prev</button>
                             <span class="month-year" id="month-year"></span>
@@ -671,7 +763,8 @@
         let timepointsConfig = {
             ACC: [3, 6, 9, 12, 18, 24],
             INT: [3, 6, 9, 12, 18, 24],
-            RT: [3, 6, 9, 12, 18, 24, 36]
+            RT: [3, 6, 9, 12, 18, 24, 36],
+            ST: [1, 2, 3, 6]  // Stressed Test biasanya timepoints lebih pendek
         };
 
         let currentDate = new Date();
@@ -680,7 +773,8 @@
         let selectedTimepoints = {
             ACC: [],
             INT: [],
-            RT: []
+            RT: [],
+            ST: []
         };
 
         // ============ LOAD DATA FROM LOCALSTORAGE ============
@@ -704,20 +798,22 @@
 
         function addDemoData() {
             const demoStudiesList = [
-                { name: 'Product A Tablet', batch: 'BN-2024-001', received: '2024-01-15', studies: ['ACC', 'INT', 'RT'], selectedTps: { ACC: [3,6,9,12], INT: [3,6,9], RT: [3,6,9,12,18] }, notes: 'Validation batch' },
-                { name: 'Product B Capsule', batch: 'BN-2024-002', received: '2024-02-10', studies: ['ACC', 'RT'], selectedTps: { ACC: [3,6], RT: [3,6,9] }, notes: 'Trial batch' },
-                { name: 'Product C Syrup', batch: 'BN-2024-003', received: '2024-03-05', studies: ['INT', 'RT'], selectedTps: { INT: [6,12], RT: [6,12,18,24] }, notes: 'Organoleptic only' }
+                { name: 'Product A Tablet', batch: 'BN-2024-001', received: '2024-01-15', category: 'Validasi', notes: 'Validation batch', studies: ['ACC', 'INT', 'RT'], rtTemp: '30°C', selectedTps: { ACC: [3,6,9,12], INT: [3,6,9], RT: [3,6,9,12,18] } },
+                { name: 'Product B Capsule', batch: 'BN-2024-002', received: '2024-02-10', category: 'Trial', notes: 'Trial batch', studies: ['ACC', 'RT', 'ST'], rtTemp: '25°C', selectedTps: { ACC: [3,6], RT: [3,6,9], ST: [1,2,3] } },
+                { name: 'Product C Syrup', batch: 'BN-2024-003', received: '2024-03-05', category: 'Pilot', notes: 'Organoleptic only', studies: ['INT', 'RT'], rtTemp: '30°C', selectedTps: { INT: [6,12], RT: [6,12,18,24] } }
             ];
             
             demoStudiesList.forEach(demo => {
-                const sampleId = Date.now() + Math.random() + demo.name;
+                const sampleId = 'demo_' + Date.now() + '_' + Math.random() + demo.name;
                 const newSample = {
                     id: sampleId,
                     name: demo.name,
                     batch_number: demo.batch,
                     received_date: demo.received,
                     notes: demo.notes,
+                    category: demo.category,
                     study_types: demo.studies,
+                    rt_temperature: demo.rtTemp,
                     selected_timepoints: demo.selectedTps,
                     created_at: new Date().toISOString()
                 };
@@ -733,9 +829,10 @@
                         dueDate.setMonth(dueDate.getMonth() + months);
                         
                         schedules.push({
-                            id: Date.now() + Math.random() + studyCode + months,
+                            id: 'demo_sched_' + Date.now() + '_' + Math.random() + studyCode + months,
                             sample_id: sampleId,
                             study_code: studyCode,
+                            rt_temperature: studyCode === 'RT' ? demo.rtTemp : null,
                             months: months,
                             due_date: dueDate.toISOString().split('T')[0],
                             is_completed: false
@@ -753,9 +850,10 @@
             localStorage.setItem(STORAGE_KEYS.TIMEPOINTS, JSON.stringify(timepointsConfig));
         }
 
-        // ============ TIMEpoINTS CHECKBOX INIT ============
+        // ============ TIMEPOINTS CHECKBOX INIT ============
         function initTimepointsCheckboxes() {
-            ['ACC', 'INT', 'RT'].forEach(studyCode => {
+            const studyCodes = ['ACC', 'INT', 'RT', 'ST'];
+            studyCodes.forEach(studyCode => {
                 const container = document.getElementById(`timepoints-checkbox-${studyCode}`);
                 if (container) {
                     const timepoints = timepointsConfig[studyCode] || [];
@@ -774,12 +872,11 @@
             const checkbox = document.getElementById(`study-${studyCode.toLowerCase()}`);
             const timepointsDiv = document.getElementById(`timepoints-${studyCode}`);
             
-            if (checkbox.checked) {
-                timepointsDiv.style.display = 'block';
-                // Auto-select all timepoints by default
+            if (checkbox && checkbox.checked) {
+                if (timepointsDiv) timepointsDiv.style.display = 'block';
                 selectAllTimepoints(studyCode);
             } else {
-                timepointsDiv.style.display = 'none';
+                if (timepointsDiv) timepointsDiv.style.display = 'none';
                 selectedTimepoints[studyCode] = [];
             }
         }
@@ -803,6 +900,12 @@
         function updateSelectedTimepoints(studyCode) {
             const checkboxes = document.querySelectorAll(`#timepoints-checkbox-${studyCode} input[type="checkbox"]:checked`);
             selectedTimepoints[studyCode] = Array.from(checkboxes).map(cb => parseInt(cb.value));
+        }
+
+        function getSelectedRTTemperature() {
+            const temp30 = document.getElementById('rt-temp-30');
+            if (temp30 && temp30.checked) return '30°C';
+            return '25°C';
         }
 
         // ============ DASHBOARD ============
@@ -830,17 +933,29 @@
                 dueList.innerHTML = '<div class="empty-state">✅ No analyses due this month.</div>';
             } else {
                 dueList.innerHTML = `
-                    <div class="schedule-grid">
+                    <div class="schedule-list">
                         ${dueThisMonth.map(s => {
                             const sample = samples.find(sm => sm.id === s.sample_id);
-                            const badgeClass = s.study_code === 'ACC' ? 'badge-acc' : (s.study_code === 'INT' ? 'badge-int' : 'badge-rt');
+                            let badgeClass = '';
+                            if (s.study_code === 'ACC') badgeClass = 'badge-acc';
+                            else if (s.study_code === 'INT') badgeClass = 'badge-int';
+                            else if (s.study_code === 'ST') badgeClass = 'badge-st';
+                            else if (s.study_code === 'RT') badgeClass = (s.rt_temperature === '30°C' ? 'badge-rt-30' : 'badge-rt-25');
+                            else badgeClass = 'badge-rt';
                             return `
-                                <div class="schedule-card">
-                                    <h4>${sample?.name || 'Unknown'}</h4>
-                                    <p>📦 Batch: ${sample?.batch_number || '-'}</p>
-                                    <p>📅 Due: ${formatDate(s.due_date)}</p>
-                                    <p><span class="badge ${badgeClass}">${s.study_code}</span> - Month ${s.months}</p>
-                                    <button class="btn btn-secondary" style="margin-top:12px" onclick="markComplete('${s.id}')">✓ Mark Complete</button>
+                                <div class="schedule-list-item">
+                                    <div class="schedule-info">
+                                        <h4>${sample?.name || 'Unknown'} (${sample?.batch_number || '-'})</h4>
+                                        <div class="schedule-details">
+                                            <span>📅 Due: ${formatDate(s.due_date)}</span>
+                                            <span><span class="badge ${badgeClass}">${s.study_code}${s.rt_temperature ? ' ' + s.rt_temperature : ''}</span></span>
+                                            <span>📊 Month ${s.months}</span>
+                                            <span>🏷️ ${sample?.category || '-'}</span>
+                                        </div>
+                                    </div>
+                                    <div class="schedule-status">
+                                        <button class="btn btn-secondary" onclick="markComplete('${s.id}')">✓ Mark Complete</button>
+                                    </div>
                                 </div>
                             `;
                         }).join('')}
@@ -855,6 +970,9 @@
                 schedule.is_completed = true;
                 saveToLocalStorage();
                 loadDashboard();
+                if (document.getElementById('monthly-view-page').style.display !== 'none') {
+                    loadMonthlyView();
+                }
             }
         }
 
@@ -867,8 +985,14 @@
             const received_date = document.getElementById('received-date').value;
             const notes = document.getElementById('notes').value;
             
+            // Get selected category
+            let category = 'Others';
+            const selectedCat = document.querySelector('input[name="category"]:checked');
+            if (selectedCat) category = selectedCat.value;
+            
             const studyTypes = [];
             const selectedTps = {};
+            let rtTemperature = null;
             
             if (document.getElementById('study-acc').checked) {
                 studyTypes.push('ACC');
@@ -881,6 +1005,11 @@
             if (document.getElementById('study-rt').checked) {
                 studyTypes.push('RT');
                 if (selectedTimepoints.RT.length > 0) selectedTps.RT = selectedTimepoints.RT;
+                rtTemperature = getSelectedRTTemperature();
+            }
+            if (document.getElementById('study-st').checked) {
+                studyTypes.push('ST');
+                if (selectedTimepoints.ST.length > 0) selectedTps.ST = selectedTimepoints.ST;
             }
             
             if (studyTypes.length === 0) {
@@ -903,7 +1032,9 @@
                 batch_number,
                 received_date,
                 notes,
+                category,
                 study_types: studyTypes,
+                rt_temperature: rtTemperature,
                 selected_timepoints: selectedTps,
                 created_at: new Date().toISOString()
             };
@@ -923,6 +1054,7 @@
                         id: Date.now() + Math.random() + studyCode + months,
                         sample_id: sampleId,
                         study_code: studyCode,
+                        rt_temperature: studyCode === 'RT' ? rtTemperature : null,
                         months: months,
                         due_date: dueDate.toISOString().split('T')[0],
                         is_completed: false
@@ -944,7 +1076,16 @@
             document.getElementById('received-date').value = '';
             document.getElementById('notes').value = '';
             
-            ['ACC', 'INT', 'RT'].forEach(code => {
+            // Reset category to Others
+            const othersRadio = document.getElementById('cat-others');
+            if (othersRadio) othersRadio.checked = true;
+            
+            // Reset RT temperature to 30°C
+            const temp30 = document.getElementById('rt-temp-30');
+            if (temp30) temp30.checked = true;
+            
+            const studyCodes = ['ACC', 'INT', 'RT', 'ST'];
+            studyCodes.forEach(code => {
                 const cb = document.getElementById(`study-${code.toLowerCase()}`);
                 if (cb) {
                     cb.checked = false;
@@ -952,7 +1093,6 @@
                     if (timepointsDiv) timepointsDiv.style.display = 'none';
                 }
                 selectedTimepoints[code] = [];
-                // Uncheck all timepoint checkboxes
                 const checkboxes = document.querySelectorAll(`#timepoints-checkbox-${code} input`);
                 checkboxes.forEach(cb => cb.checked = false);
             });
@@ -973,7 +1113,7 @@
             
             const tbody = document.getElementById('samples-table');
             if (filteredSamples.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">📭 No samples registered yet.<br><br><button class="btn btn-primary" onclick="showPage(\'add-sample\')">➕ Add your first sample</button></div></td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">📭 No samples registered yet.<br><br><button class="btn btn-primary" onclick="showPage(\'add-sample\')">➕ Add your first sample</button></div></td></tr>';
                 return;
             }
             
@@ -982,7 +1122,16 @@
                     <td><strong>${escapeHtml(sample.name)}</strong></td>
                     <td>${escapeHtml(sample.batch_number)}</td>
                     <td>${formatDate(sample.received_date)}</td>
-                    <td>${sample.study_types.map(st => `<span class="badge ${st === 'ACC' ? 'badge-acc' : (st === 'INT' ? 'badge-int' : 'badge-rt')}">${st}</span>`).join(' ')}</td>
+                    <td><span class="badge badge-category">${sample.category || 'Others'}</span></td>
+                    <td>${sample.study_types.map(st => {
+                        let badgeClass = '';
+                        if (st === 'ACC') badgeClass = 'badge-acc';
+                        else if (st === 'INT') badgeClass = 'badge-int';
+                        else if (st === 'ST') badgeClass = 'badge-st';
+                        else if (st === 'RT') badgeClass = (sample.rt_temperature === '30°C' ? 'badge-rt-30' : 'badge-rt-25');
+                        else badgeClass = 'badge-rt';
+                        return `<span class="badge ${badgeClass}">${st}${st === 'RT' && sample.rt_temperature ? ' ' + sample.rt_temperature : ''}</span>`;
+                    }).join(' ')}</td>
                     <td><button class="btn btn-danger" onclick="deleteSample('${sample.id}')">🗑️ Delete</button></td>
                 </tr>
             `).join('');
@@ -1011,21 +1160,38 @@
                 return dueDate.getMonth() === month && dueDate.getFullYear() === year;
             });
             
+            // Sort by due date
+            monthSchedules.sort((a, b) => new Date(a.due_date) - new Date(b.due_date));
+            
             const container = document.getElementById('monthly-schedules');
             if (monthSchedules.length === 0) {
                 container.innerHTML = '<div class="empty-state">📭 No analyses scheduled for ' + monthNames[month] + ' ' + year + '.</div>';
             } else {
                 container.innerHTML = `
-                    <div class="schedule-grid">
+                    <div class="schedule-list">
                         ${monthSchedules.map(s => {
                             const sample = samples.find(sm => sm.id === s.sample_id);
-                            const badgeClass = s.study_code === 'ACC' ? 'badge-acc' : (s.study_code === 'INT' ? 'badge-int' : 'badge-rt');
+                            let badgeClass = '';
+                            if (s.study_code === 'ACC') badgeClass = 'badge-acc';
+                            else if (s.study_code === 'INT') badgeClass = 'badge-int';
+                            else if (s.study_code === 'ST') badgeClass = 'badge-st';
+                            else if (s.study_code === 'RT') badgeClass = (s.rt_temperature === '30°C' ? 'badge-rt-30' : 'badge-rt-25');
+                            else badgeClass = 'badge-rt';
                             return `
-                                <div class="schedule-card">
-                                    <h4>${sample?.name || 'Unknown'}</h4>
-                                    <p>📦 Batch: ${sample?.batch_number || '-'}</p>
-                                    <p>📅 Due: ${formatDate(s.due_date)}</p>
-                                    <p><span class="badge ${badgeClass}">${s.study_code}</span> - Month ${s.months}</p>
+                                <div class="schedule-list-item">
+                                    <div class="schedule-info">
+                                        <h4>${sample?.name || 'Unknown'} (${sample?.batch_number || '-'})</h4>
+                                        <div class="schedule-details">
+                                            <span>📅 Due: ${formatDate(s.due_date)}</span>
+                                            <span><span class="badge ${badgeClass}">${s.study_code}${s.rt_temperature ? ' ' + s.rt_temperature : ''}</span></span>
+                                            <span>📊 Month ${s.months}</span>
+                                            <span>🏷️ ${sample?.category || '-'}</span>
+                                            ${sample?.notes ? `<span>📝 ${sample.notes.substring(0, 50)}${sample.notes.length > 50 ? '...' : ''}</span>` : ''}
+                                        </div>
+                                    </div>
+                                    <div class="schedule-status">
+                                        <button class="btn btn-secondary" onclick="markComplete('${s.id}')">✓ Mark Complete</button>
+                                    </div>
                                 </div>
                             `;
                         }).join('')}
@@ -1045,14 +1211,15 @@
             const studyTypes = [
                 { code: 'ACC', name: 'ACC: Accelerated' },
                 { code: 'INT', name: 'INT: Intermediate' },
-                { code: 'RT', name: 'RT: Room Temperature' }
+                { code: 'RT', name: 'RT: Room Temperature' },
+                { code: 'ST', name: 'ST: Stressed Test' }
             ];
             
             container.innerHTML = studyTypes.map(st => `
                 <div class="study-type-section">
                     <h3>${st.name}</h3>
                     <div class="timepoint-list" id="timepoint-list-${st.code}">
-                        ${timepointsConfig[st.code].map(m => `<span class="timepoint-tag">${m} months</span>`).join('')}
+                        ${timepointsConfig[st.code] ? timepointsConfig[st.code].map(m => `<span class="timepoint-tag">${m} months</span>`).join('') : ''}
                     </div>
                     <div class="timepoint-input-group">
                         <input type="number" id="new-timepoint-${st.code}" placeholder="Months" min="1">
@@ -1069,11 +1236,14 @@
                 alert('Please enter a valid number of months');
                 return;
             }
+            if (!timepointsConfig[studyCode]) {
+                timepointsConfig[studyCode] = [];
+            }
             if (!timepointsConfig[studyCode].includes(months)) {
                 timepointsConfig[studyCode].push(months);
                 timepointsConfig[studyCode].sort((a,b) => a-b);
                 saveToLocalStorage();
-                initTimepointsCheckboxes(); // Refresh checkboxes in add sample form
+                initTimepointsCheckboxes();
             }
             input.value = '';
             loadSettingsPage();
@@ -1081,7 +1251,7 @@
         
         function saveAllTimepoints() {
             saveToLocalStorage();
-            initTimepointsCheckboxes(); // Refresh checkboxes in add sample form
+            initTimepointsCheckboxes();
             alert('✅ Settings saved! Changes will only affect new samples.');
         }
         
@@ -1089,7 +1259,8 @@
             timepointsConfig = {
                 ACC: [3, 6, 9, 12, 18, 24],
                 INT: [3, 6, 9, 12, 18, 24],
-                RT: [3, 6, 9, 12, 18, 24, 36]
+                RT: [3, 6, 9, 12, 18, 24, 36],
+                ST: [1, 2, 3, 6]
             };
             saveToLocalStorage();
             initTimepointsCheckboxes();
@@ -1129,7 +1300,10 @@
             
             if (page === 'dashboard') loadDashboard();
             if (page === 'all-samples') loadSamples();
-            if (page === 'monthly-view') loadMonthlyView();
+            if (page === 'monthly-view') {
+                currentDate = new Date();
+                loadMonthlyView();
+            }
             if (page === 'settings') loadSettingsPage();
         }
 
