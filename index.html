@@ -195,6 +195,75 @@
             margin-left: 4px;
         }
 
+        /* Study Type Timepoints Section */
+        .study-timepoints-section {
+            margin-top: 16px;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .study-timepoints-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .study-timepoints-header h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .timepoint-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .timepoint-actions button {
+            padding: 4px 12px;
+            font-size: 12px;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .timepoint-actions button:hover {
+            background: #e9ecef;
+        }
+
+        .timepoints-checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .timepoint-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .timepoint-checkbox-item input {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+        }
+
+        .timepoint-checkbox-item label {
+            margin: 0;
+            font-size: 13px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
         /* Buttons */
         .btn {
             padding: 10px 20px;
@@ -405,6 +474,11 @@
             background: #fff3bf;
             border-radius: 12px;
         }
+
+        /* Study Type Row in Add Sample */
+        .study-type-row {
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
@@ -469,18 +543,54 @@
                         </div>
                         <div class="form-group">
                             <label>Study Types</label>
-                            <div class="checkbox-group">
-                                <div class="checkbox-item">
-                                    <input type="checkbox" value="ACC" id="study-acc">
-                                    <label for="study-acc">ACC <span class="checkbox-sub">(Accelerated)</span></label>
+                            <div id="study-types-container">
+                                <div class="study-type-row">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" value="ACC" id="study-acc" onchange="toggleStudyTimepoints('ACC')">
+                                        <label for="study-acc">ACC <span class="checkbox-sub">(Accelerated)</span></label>
+                                    </div>
+                                    <div id="timepoints-ACC" class="study-timepoints-section" style="display: none;">
+                                        <div class="study-timepoints-header">
+                                            <h4>Timepoints</h4>
+                                            <div class="timepoint-actions">
+                                                <button type="button" onclick="selectAllTimepoints('ACC')">Select all</button>
+                                                <button type="button" onclick="clearAllTimepoints('ACC')">Clear</button>
+                                            </div>
+                                        </div>
+                                        <div id="timepoints-checkbox-ACC" class="timepoints-checkbox-group"></div>
+                                    </div>
                                 </div>
-                                <div class="checkbox-item">
-                                    <input type="checkbox" value="INT" id="study-int">
-                                    <label for="study-int">INT <span class="checkbox-sub">(Intermediate)</span></label>
+                                <div class="study-type-row">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" value="INT" id="study-int" onchange="toggleStudyTimepoints('INT')">
+                                        <label for="study-int">INT <span class="checkbox-sub">(Intermediate)</span></label>
+                                    </div>
+                                    <div id="timepoints-INT" class="study-timepoints-section" style="display: none;">
+                                        <div class="study-timepoints-header">
+                                            <h4>Timepoints</h4>
+                                            <div class="timepoint-actions">
+                                                <button type="button" onclick="selectAllTimepoints('INT')">Select all</button>
+                                                <button type="button" onclick="clearAllTimepoints('INT')">Clear</button>
+                                            </div>
+                                        </div>
+                                        <div id="timepoints-checkbox-INT" class="timepoints-checkbox-group"></div>
+                                    </div>
                                 </div>
-                                <div class="checkbox-item">
-                                    <input type="checkbox" value="RT" id="study-rt">
-                                    <label for="study-rt">RT <span class="checkbox-sub">(Room Temperature)</span></label>
+                                <div class="study-type-row">
+                                    <div class="checkbox-item">
+                                        <input type="checkbox" value="RT" id="study-rt" onchange="toggleStudyTimepoints('RT')">
+                                        <label for="study-rt">RT <span class="checkbox-sub">(Room Temperature)</span></label>
+                                    </div>
+                                    <div id="timepoints-RT" class="study-timepoints-section" style="display: none;">
+                                        <div class="study-timepoints-header">
+                                            <h4>Timepoints</h4>
+                                            <div class="timepoint-actions">
+                                                <button type="button" onclick="selectAllTimepoints('RT')">Select all</button>
+                                                <button type="button" onclick="clearAllTimepoints('RT')">Clear</button>
+                                            </div>
+                                        </div>
+                                        <div id="timepoints-checkbox-RT" class="timepoints-checkbox-group"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -566,6 +676,13 @@
 
         let currentDate = new Date();
 
+        // Store selected timepoints per study type for current form
+        let selectedTimepoints = {
+            ACC: [],
+            INT: [],
+            RT: []
+        };
+
         // ============ LOAD DATA FROM LOCALSTORAGE ============
         function loadData() {
             const storedSamples = localStorage.getItem(STORAGE_KEYS.SAMPLES);
@@ -576,22 +693,20 @@
             if (storedSchedules) schedules = JSON.parse(storedSchedules);
             if (storedTimepoints) timepointsConfig = JSON.parse(storedTimepoints);
             
-            // Add sample data for demo if empty
+            // Add demo data if empty
             if (samples.length === 0) {
                 addDemoData();
             }
+            
+            // Initialize selected timepoints for form
+            initTimepointsCheckboxes();
         }
 
-        // Demo data sesuai screenshot
         function addDemoData() {
-            const demoReceived = '2024-01-15';
-            
-            const demoStudies = ['ACC', 'INT', 'RT'];
-            
             const demoStudiesList = [
-                { name: 'Product A Tablet', batch: 'BN-2024-001', received: '2024-01-15', studies: ['ACC', 'INT', 'RT'], notes: 'Validation batch' },
-                { name: 'Product B Capsule', batch: 'BN-2024-002', received: '2024-02-10', studies: ['ACC', 'RT'], notes: 'Trial batch' },
-                { name: 'Product C Syrup', batch: 'BN-2024-003', received: '2024-03-05', studies: ['INT', 'RT'], notes: 'Organoleptic only' }
+                { name: 'Product A Tablet', batch: 'BN-2024-001', received: '2024-01-15', studies: ['ACC', 'INT', 'RT'], selectedTps: { ACC: [3,6,9,12], INT: [3,6,9], RT: [3,6,9,12,18] }, notes: 'Validation batch' },
+                { name: 'Product B Capsule', batch: 'BN-2024-002', received: '2024-02-10', studies: ['ACC', 'RT'], selectedTps: { ACC: [3,6], RT: [3,6,9] }, notes: 'Trial batch' },
+                { name: 'Product C Syrup', batch: 'BN-2024-003', received: '2024-03-05', studies: ['INT', 'RT'], selectedTps: { INT: [6,12], RT: [6,12,18,24] }, notes: 'Organoleptic only' }
             ];
             
             demoStudiesList.forEach(demo => {
@@ -603,13 +718,14 @@
                     received_date: demo.received,
                     notes: demo.notes,
                     study_types: demo.studies,
+                    selected_timepoints: demo.selectedTps,
                     created_at: new Date().toISOString()
                 };
                 samples.push(newSample);
                 
-                // Generate schedules
+                // Generate schedules based on selected timepoints
                 demo.studies.forEach(studyCode => {
-                    const timepoints = timepointsConfig[studyCode] || [];
+                    const timepoints = demo.selectedTps[studyCode] || [];
                     const receivedDate = new Date(demo.received);
                     
                     timepoints.forEach(months => {
@@ -637,11 +753,56 @@
             localStorage.setItem(STORAGE_KEYS.TIMEPOINTS, JSON.stringify(timepointsConfig));
         }
 
-        // ============ HELPER FUNCTIONS ============
-        function formatDate(dateStr) {
-            if (!dateStr) return '-';
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-GB');
+        // ============ TIMEpoINTS CHECKBOX INIT ============
+        function initTimepointsCheckboxes() {
+            ['ACC', 'INT', 'RT'].forEach(studyCode => {
+                const container = document.getElementById(`timepoints-checkbox-${studyCode}`);
+                if (container) {
+                    const timepoints = timepointsConfig[studyCode] || [];
+                    container.innerHTML = timepoints.map(months => `
+                        <div class="timepoint-checkbox-item">
+                            <input type="checkbox" value="${months}" id="tp-${studyCode}-${months}" onchange="updateSelectedTimepoints('${studyCode}')">
+                            <label for="tp-${studyCode}-${months}">${months} months</label>
+                        </div>
+                    `).join('');
+                }
+                selectedTimepoints[studyCode] = [];
+            });
+        }
+
+        function toggleStudyTimepoints(studyCode) {
+            const checkbox = document.getElementById(`study-${studyCode.toLowerCase()}`);
+            const timepointsDiv = document.getElementById(`timepoints-${studyCode}`);
+            
+            if (checkbox.checked) {
+                timepointsDiv.style.display = 'block';
+                // Auto-select all timepoints by default
+                selectAllTimepoints(studyCode);
+            } else {
+                timepointsDiv.style.display = 'none';
+                selectedTimepoints[studyCode] = [];
+            }
+        }
+
+        function selectAllTimepoints(studyCode) {
+            const checkboxes = document.querySelectorAll(`#timepoints-checkbox-${studyCode} input[type="checkbox"]`);
+            checkboxes.forEach(cb => {
+                cb.checked = true;
+            });
+            updateSelectedTimepoints(studyCode);
+        }
+
+        function clearAllTimepoints(studyCode) {
+            const checkboxes = document.querySelectorAll(`#timepoints-checkbox-${studyCode} input[type="checkbox"]`);
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+            });
+            updateSelectedTimepoints(studyCode);
+        }
+
+        function updateSelectedTimepoints(studyCode) {
+            const checkboxes = document.querySelectorAll(`#timepoints-checkbox-${studyCode} input[type="checkbox"]:checked`);
+            selectedTimepoints[studyCode] = Array.from(checkboxes).map(cb => parseInt(cb.value));
         }
 
         // ============ DASHBOARD ============
@@ -707,13 +868,32 @@
             const notes = document.getElementById('notes').value;
             
             const studyTypes = [];
-            if (document.getElementById('study-acc').checked) studyTypes.push('ACC');
-            if (document.getElementById('study-int').checked) studyTypes.push('INT');
-            if (document.getElementById('study-rt').checked) studyTypes.push('RT');
+            const selectedTps = {};
+            
+            if (document.getElementById('study-acc').checked) {
+                studyTypes.push('ACC');
+                if (selectedTimepoints.ACC.length > 0) selectedTps.ACC = selectedTimepoints.ACC;
+            }
+            if (document.getElementById('study-int').checked) {
+                studyTypes.push('INT');
+                if (selectedTimepoints.INT.length > 0) selectedTps.INT = selectedTimepoints.INT;
+            }
+            if (document.getElementById('study-rt').checked) {
+                studyTypes.push('RT');
+                if (selectedTimepoints.RT.length > 0) selectedTps.RT = selectedTimepoints.RT;
+            }
             
             if (studyTypes.length === 0) {
                 alert('Please select at least one study type');
                 return;
+            }
+            
+            // Validate each study type has timepoints selected
+            for (const st of studyTypes) {
+                if (!selectedTps[st] || selectedTps[st].length === 0) {
+                    alert(`Please select at least one timepoint for ${st}`);
+                    return;
+                }
             }
             
             const sampleId = Date.now().toString();
@@ -724,14 +904,15 @@
                 received_date,
                 notes,
                 study_types: studyTypes,
+                selected_timepoints: selectedTps,
                 created_at: new Date().toISOString()
             };
             
             samples.push(newSample);
             
-            // Generate schedules
+            // Generate schedules based on SELECTED timepoints
             studyTypes.forEach(studyCode => {
-                const timepoints = timepointsConfig[studyCode] || [];
+                const timepoints = selectedTps[studyCode] || [];
                 const receivedDate = new Date(received_date);
                 
                 timepoints.forEach(months => {
@@ -762,9 +943,19 @@
             document.getElementById('batch-number').value = '';
             document.getElementById('received-date').value = '';
             document.getElementById('notes').value = '';
-            document.getElementById('study-acc').checked = false;
-            document.getElementById('study-int').checked = false;
-            document.getElementById('study-rt').checked = false;
+            
+            ['ACC', 'INT', 'RT'].forEach(code => {
+                const cb = document.getElementById(`study-${code.toLowerCase()}`);
+                if (cb) {
+                    cb.checked = false;
+                    const timepointsDiv = document.getElementById(`timepoints-${code}`);
+                    if (timepointsDiv) timepointsDiv.style.display = 'none';
+                }
+                selectedTimepoints[code] = [];
+                // Uncheck all timepoint checkboxes
+                const checkboxes = document.querySelectorAll(`#timepoints-checkbox-${code} input`);
+                checkboxes.forEach(cb => cb.checked = false);
+            });
         }
 
         // ============ ALL SAMPLES ============
@@ -882,6 +1073,7 @@
                 timepointsConfig[studyCode].push(months);
                 timepointsConfig[studyCode].sort((a,b) => a-b);
                 saveToLocalStorage();
+                initTimepointsCheckboxes(); // Refresh checkboxes in add sample form
             }
             input.value = '';
             loadSettingsPage();
@@ -889,6 +1081,7 @@
         
         function saveAllTimepoints() {
             saveToLocalStorage();
+            initTimepointsCheckboxes(); // Refresh checkboxes in add sample form
             alert('✅ Settings saved! Changes will only affect new samples.');
         }
         
@@ -899,26 +1092,30 @@
                 RT: [3, 6, 9, 12, 18, 24, 36]
             };
             saveToLocalStorage();
+            initTimepointsCheckboxes();
             loadSettingsPage();
             alert('🔄 Reset to default timepoints');
         }
 
+        // ============ HELPER FUNCTIONS ============
+        function formatDate(dateStr) {
+            if (!dateStr) return '-';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-GB');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
         // ============ NAVIGATION ============
         function showPage(page) {
-            document.querySelectorAll('[id$="-page"]').forEach(p => p.style.display = 'none');
-            document.getElementById(`${page}-page`).style.display = 'block';
-            
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
-            event?.target?.classList?.add('active');
-            
-            if (page === 'dashboard') loadDashboard();
-            if (page === 'all-samples') loadSamples();
-            if (page === 'monthly-view') loadMonthlyView();
-            if (page === 'settings') loadSettingsPage();
-        }
-        
-        // Override untuk handle klik navigasi
-        window.showPage = (page) => {
             document.querySelectorAll('[id$="-page"]').forEach(p => p.style.display = 'none');
             document.getElementById(`${page}-page`).style.display = 'block';
             
@@ -934,16 +1131,6 @@
             if (page === 'all-samples') loadSamples();
             if (page === 'monthly-view') loadMonthlyView();
             if (page === 'settings') loadSettingsPage();
-        };
-        
-        function escapeHtml(str) {
-            if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
         }
 
         // ============ INIT ============
@@ -960,6 +1147,10 @@
         window.loadSamples = loadSamples;
         window.clearForm = clearForm;
         window.showPage = showPage;
+        window.toggleStudyTimepoints = toggleStudyTimepoints;
+        window.selectAllTimepoints = selectAllTimepoints;
+        window.clearAllTimepoints = clearAllTimepoints;
+        window.updateSelectedTimepoints = updateSelectedTimepoints;
     </script>
 </body>
 </html>
